@@ -5,8 +5,9 @@ This repository contains migration tools from maven/typcho to gradle/bnd
 ## Manifest dependencies to gradle dependencies
 
 This tool reads an existing MANIFEST.MF file, extracts the dependencies and creates
-a `dependencies.gradle` file. If the tool is run in a multi-project directory, it will
-also create an `allowed_dependencies.json` file, which lists all found project dependencies
+a `dependencies.gradle` file per project in the root of each project.
+If the tool is run in a multi-project directory, it will
+also create an `allowed_dependencies.json` file, which lists all encountered project dependencies
 in a single file in the following format:
 
 ```
