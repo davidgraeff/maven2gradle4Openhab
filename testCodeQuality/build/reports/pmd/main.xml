@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd version="5.8.1" timestamp="2017-12-14T01:24:20.132">
+<file name="/home/david/Entwicklung/openhab2-master2/git/testCodeQuality/src/main/java/org/example/Main.java">
+<violation beginline="3" endline="11" begincolumn="19" endcolumn="1" rule="UseUtilityClass" ruleset="Design" package="org.example" class="Main" externalInfoUrl="https://pmd.github.io/pmd-5.8.1/pmd-java/rules/java/design.html#UseUtilityClass" priority="3">
+All methods are static.  Consider using a utility class instead. Alternatively, you could add a private constructor or make the class abstract to silence this warning.
+</violation>
+<violation beginline="5" endline="5" begincolumn="29" endcolumn="41" rule="MethodArgumentCouldBeFinal" ruleset="Optimization" package="org.example" class="Main" method="main" variable="args" externalInfoUrl="https://pmd.github.io/pmd-5.8.1/pmd-java/rules/java/optimizations.html#MethodArgumentCouldBeFinal" priority="3">
+Parameter 'args' is not assigned and could be declared final
+</violation>
+<violation beginline="6" endline="6" begincolumn="9" endcolumn="26" rule="SystemPrintln" ruleset="Java Logging" package="org.example" class="Main" method="main" externalInfoUrl="https://pmd.github.io/pmd-5.8.1/pmd-java/rules/java/logging-java.html#SystemPrintln" priority="2">
+System.out.println is used
+</violation>
+<violation beginline="7" endline="8" begincolumn="9" endcolumn="18" rule="WhileLoopsMustUseBraces" ruleset="Braces" package="org.example" class="Main" method="main" externalInfoUrl="https://pmd.github.io/pmd-5.8.1/pmd-java/rules/java/braces.html#WhileLoopsMustUseBraces" priority="3">
+Avoid using while statements without curly braces
+</violation>
+</file>
+</pmd>

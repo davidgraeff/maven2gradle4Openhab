@@ -1,0 +1,132 @@
+/**
+ * Quality checks (https://github.com/xvik/gradle-quality-plugin)
+ *
+ * __How does it work__
+ * A combination of a new configuration "codequality", a dependency to the openhab static code analysis repository and
+ * an extract task ("extractCodeQualityPlugins") makes the configuration files for pmd, findbugs and checkstyle available
+ * in the directory "gradle/codequality/rulesets/".
+ *
+ * The separate bundles with the individual checkers for pmd, findbugs and checkstyle are declared as dependencies to make
+ * them available in the classpath.
+ */
+
+apply plugin: "findbugs"
+apply plugin: "pmd"
+apply plugin: "checkstyle"
+
+license {
+    ext.year = Calendar.getInstance().get(Calendar.YEAR)
+    header = file('project-orga/license_template.txt')
+    strictCheck = true
+    ignoreFailures = true
+}
+
+configurations {
+    codequality
+}
+
+task extractCodeQualityPlugins(type: Copy) {
+    dependsOn configurations.codequality
+    from { configurations.codequality.collect { zipTree(it) } }; into 'gradle/codequality'
+    doLast {
+        // def suppressionFile = file("gradle/codequality/rulesets/checkstyle/suppressions.xml").name
+        // println checkstyle.toolVersion +" "+suppressionFile
+        String contents = file("gradle/codequality/rulesets/checkstyle/rules.xml").getText( 'UTF-8' ) 
+        contents = contents.replace( '<module name="Checker">',
+            '<module name="Checker"><module name="SuppressionFilter"><property name="file" value="${config_loc}/suppressions.xml"/></module>' )
+        file("gradle/codequality/rulesets/checkstyle/rules.xml").write( contents, 'UTF-8' )
+    }
+}
+
+
+dependencies {
+    // Use personal repository for version 0.4.0 release tag
+    codequality ('com.github.davidgraeff.static-code-analysis:static-code-analysis:0.4.0@jar') { transitive = false }
+    checkstyle "com.puppycrawl.tools:checkstyle:${checkstyle.toolVersion}"
+    checkstyle 'com.github.davidgraeff.static-code-analysis:org.openhab.tools.custom-checks.checkstyle:0.4.0@jar'
+    pmd 'net.sourceforge.pmd:pmd-core:5.8.1'
+    pmd 'net.sourceforge.pmd:pmd-java:5.8.1'
+    pmd 'com.github.davidgraeff.static-code-analysis:org.openhab.tools.custom-checks.pmd:0.4.0@jar'
+    findbugs 'com.google.code.findbugs:findbugs:3.0.1'
+    findbugs group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+    findbugsPlugins "jp.skypencil.findbugs.slf4j:bug-pattern:1.2.4@jar"
+    findbugsPlugins 'com.github.davidgraeff.static-code-analysis:org.openhab.tools.custom-checks.findbugs:0.4.0@jar'
+}
+
+compileJava { dependsOn extractCodeQualityPlugins}
+//checkQualityMain { dependsOn extractCodeQualityPlugins}
+
+quality {
+    /**
+     * When disabled, quality plugins will not be registered automatically (according to sources).
+     * Only manually registered quality plugins will be configured.
+     */
+    autoRegistration = false
+
+    // Enable/disable tools (when auto registration disabled control configuration appliance)
+    checkstyle = false
+    pmd = false
+    findbugs = false
+    codenarc = false
+    
+    /**
+     * The analysis effort level. The value specified should be one of min, default, or max.
+     * Higher levels increase precision and find more bugs at the expense of running time and
+     * memory consumption. Default is 'max'.
+     */
+    findbugsEffort = 'max'
+    
+    /**
+     * The priority threshold for reporting bugs. If set to low, all bugs are reported.
+     * If set to medium, medium and high priority bugs are reported.
+     * If set to high, only high priority bugs are reported. Default is 'medium'.
+     */
+    findbugsLevel = 'medium'
+
+    /**
+     * Javac lint options to show compiler warnings, not visible by default.
+     * Applies to all CompileJava tasks.
+     * Options will be added as -Xlint:option
+     * Full list of options: http://docs.oracle.com/javase/8/docs/technotes/tools/windows/javac.html#BHCJCABJ
+     */
+    lintOptions = ['deprecation', 'unchecked']
+
+    /**
+     * Strict quality leads to build fail on any violation found. If disabled, all violation
+     * are just printed to console.
+     */
+    strict = false
+    
+    /**
+     * When false, disables quality tasks execution. Allows disabling tasks without removing plugins.
+     * Quality tasks are still registered, but skip execution, except when task called directly or through
+     * checkQualityMain (or other source set) grouping task.
+     */
+    enabled = true
+    
+    /**
+     * When false, disables reporting quality issues to console. Only gradle general error messages will
+     * remain in logs. This may be useful in cases when project contains too many warnings.
+     * Also, console reporting require xml reports parsing, which could be time consuming in case of too
+     * many errors (large xml reports).
+     * True by default.
+     */
+    consoleReporting = true
+}
+
+findbugs {
+    def findbugsVisitors = (new XmlSlurper().parse(file("gradle/codequality/rulesets/findbugs/visitors.xml")).children())
+    includeFilter = file('gradle/codequality/rulesets/findbugs/include.xml')
+    excludeFilter = file('gradle/codequality/rulesets/findbugs/exclude.xml')
+    visitors = (new XmlSlurper().parse(file("gradle/codequality/rulesets/findbugs/visitors.xml")).children()).collect({ v -> (String)v })
+}
+
+pmd {
+    ruleSetConfig = resources.text.fromFile("gradle/codequality/rulesets/pmd/rules.xml")
+}
+
+checkstyle {
+    toolVersion = "8.4.0"
+    // configDir = file("gradle/codequality/rulesets/checkstyle")
+    configFile = file("gradle/codequality/rulesets/checkstyle/rules.xml")
+}

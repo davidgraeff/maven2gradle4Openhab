@@ -1,0 +1,46 @@
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+// Use "gradle build publishToMavenLocal"
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    configurations = ['archives']
+    pkg {
+        repo = 'maven'
+        licenses = ['Apache-2.0']
+        userOrg = 'myorg' //An optional organization name when the repo belongs to one of the user's orgs
+        desc = 'what a fantastic package indeed!'
+        websiteUrl = 'https://github.com/bintray/gradle-bintray-plugin'
+        issueTrackerUrl = 'https://github.com/bintray/gradle-bintray-plugin/issues'
+        vcsUrl = 'https://github.com/bintray/gradle-bintray-plugin.git'
+        licenses = ['Apache-2.0']
+        labels = ['gear', 'gore', 'gorilla']
+        publicDownloadNumbers = true
+    }
+    version {
+        name = '1.0-Final'
+        desc = 'Gradle Bintray Plugin 1.0 final'
+        released  = new Date()
+        gpg {
+            sign = true //Determines whether to GPG sign the files. The default is false
+            passphrase = 'passphrase' //Optional. The passphrase for GPG signing'
+        }
+        //Optional configuration for Maven Central sync of the version
+        mavenCentralSync {
+            sync = true //[Default: true] Determines whether to sync the version to Maven Central.
+            user = 'userToken' //OSS user token: mandatory
+            password = 'paasword' //OSS user password: mandatory
+            close = '1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+        }    
+    }
+}
+

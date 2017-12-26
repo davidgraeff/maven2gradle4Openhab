@@ -1,0 +1,18 @@
+configurations {
+    archetype
+}
+
+dependencies {
+    archetype 'org.eclipse.smarthome.archetype:org.eclipse.smarthome.archetype.binding:+'
+}
+
+task extractTemplate(type: Copy) {
+    from { configurations.archetype.collect { zipTree(it) } }; into 'gradle/template'
+}
+
+generate {
+    dependsOn extractTemplate
+    System.setProperty "templates", "gradle/template/archetype-resources"
+    System.setProperty "group", "org.openhab.binding"
+    System.setProperty "version", "2.2.0-SNAPSHOT"
+}

@@ -1,0 +1,57 @@
+plugins {
+    // OSGi run environment for integration tests and development
+    id "com.athaydes.osgi-run" version "1.6.0"
+    // Code quality checks - alternative
+    // id "com.vanniktech.code.quality.tools" version "0.8.0"
+    // Code quality checks (https://github.com/xvik/gradle-quality-plugin)
+    id 'ru.vyarus.quality' version '2.4.0'
+    // License header - automatic add/modify/report header (https://github.com/hierynomus/license-gradle-plugin)
+    id "com.github.hierynomus.license" version"0.14.0"
+    // Generate karaf feature file and kar file (https://github.com/lburgazzoli/gradle-karaf-plugin)
+    id 'com.github.lburgazzoli.karaf' version '0.0.49'
+    // Dependency lock file for Eclipse IP validation procedure
+    id "nebula.dependency-lock" version "4.9.5"
+    // Archetype support
+    id "com.orctom.archetype" version "1.4.6.3"
+    
+    id 'java-library' // Support for java projects
+    id 'eclipse'      // Generate Eclipse IDE project files
+    id 'idea'         // Generate IDEA IntelliJ IDE project files
+    id 'org.dm.bundle' version '0.10.0' // OSGI plugin
+    id 'org.jayware.osgi-ds' version '0.5.5' // OSGI Declarative Services XML
+    id 'org.inferred.processors' version '1.2.15' // Java annotation processors
+}
+
+repositories {
+    jcenter()
+    maven { url "https://repo.eclipse.org/content/repositories/smarthome-snapshots" }
+}
+
+
+bundle {
+    instruction '-exportcontents', '!OSGI-INF*,!ESH-INF*,!*.internal,!*.internal.*,*;-split-package:=error'
+    instruction '-removeheaders', 'Private-Package,Created-By,Tool'
+    instruction '-includeresource', 'about.html,OSGI-INF=OSGI-INF,ESH-INF=ESH-INF'
+    instruction '-experiments', 'true'
+}
+
+configurations {
+    archetype
+    archives
+}
+
+dependencies {
+    archetype 'org.eclipse.smarthome.archetype:org.eclipse.smarthome.archetype.binding:+'
+}
+
+task extractTemplate(type: Copy) {
+    from { configurations.archetype.collect { zipTree(it) } }; into 'template'
+}
+
+generate {
+    dependsOn extractTemplate
+    System.setProperty "templates", "template/archetype-resources"
+    System.setProperty "group", "org.openhab.binding"
+    System.setProperty "version", "2.2.0-SNAPSHOT"
+}
+
