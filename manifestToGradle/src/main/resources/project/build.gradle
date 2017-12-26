@@ -1,0 +1,29 @@
+plugins {
+    id 'java-library' // Support for java projects
+    id 'eclipse'      // Generate Eclipse IDE project files
+    id 'idea'         // Generate IDEA IntelliJ IDE project files 
+    id 'org.dm.bundle' version '0.10.0' // OSGI plugin
+    id 'org.jayware.osgi-ds' version '0.5.5' // OSGI Declarative Services XML
+    id 'org.inferred.processors' version '1.2.15' // Java annotation processors
+}
+
+repositories {
+    jcenter()
+    flatDir { dirs 'lib','libTests' }
+    maven { url "https://repo.eclipse.org/content/repositories/smarthome-snapshots" }
+    maven { url "https://repo.eclipse.org/content/repositories/smarthome-stable" }
+}
+
+bundle {
+    instruction '-exportcontents', '!OSGI-INF*,!ESH-INF*,!*.internal,!*.internal.*,*;-split-package:=error'
+    instruction '-removeheaders', 'Private-Package,Created-By,Tool'
+    instruction '-includeresource', 'about.html,OSGI-INF=OSGI-INF,ESH-INF=ESH-INF'
+    instruction '-experiments', 'true'
+}
+
+sourceCompatibility=1.8
+if (version=="unspecified") logger.warn("You need to specify the version with a master build script or 'gradle build -P version=2.2.0'")
+
+if (file('groovySupport.gradle').exists()) { apply from: 'groovySupport.gradle'; }
+apply from: 'manifest.gradle'
+apply from: 'dependencies.gradle'

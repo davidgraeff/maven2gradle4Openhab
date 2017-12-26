@@ -1,0 +1,38 @@
+plugins {
+    // OSGi run environment for integration tests and development
+    id "com.athaydes.osgi-run" version "1.6.0"
+    // Code quality checks - alternative
+    // id "com.vanniktech.code.quality.tools" version "0.8.0"
+    // Code quality checks (https://github.com/xvik/gradle-quality-plugin)
+    id 'ru.vyarus.quality' version '2.4.0'
+    // License header - automatic add/modify/report header (https://github.com/hierynomus/license-gradle-plugin)
+    id "com.github.hierynomus.license" version"0.14.0"
+    // Generate karaf feature file and kar file (https://github.com/lburgazzoli/gradle-karaf-plugin)
+    id 'com.github.lburgazzoli.karaf' version '0.0.49'
+    // Dependency lock file for Eclipse IP validation procedure
+    id "nebula.dependency-lock" version "4.9.5"
+    // Archetype support
+    id "com.orctom.archetype" version "1.4.6.3"
+    // Version/Release plugin - Deduct version from last git tag (https://github.com/allegro/axion-release-plugin)
+    id 'pl.allegro.tech.build.axion-release' version '1.8.1'
+    // Publish on bintray
+    id "com.jfrog.bintray" version "1.7.3"
+}
+
+repositories {
+    jcenter()
+    maven { url "https://jitpack.io" }
+}
+
+license {
+    ext.year = Calendar.getInstance().get(Calendar.YEAR)
+    header = file('project-orga/license_template.txt')
+    strictCheck = true
+}
+
+scmVersion.tag.prefix = rootProject.name
+project.version = scmVersion.version
+
+apply from: 'archetype.gradle'
+apply from: 'codequality.gradle'
+apply from: 'deploy.gradle'

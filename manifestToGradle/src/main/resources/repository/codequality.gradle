@@ -1,0 +1,90 @@
+// Quality checks (https://github.com/xvik/gradle-quality-plugin)
+
+configurations {
+    codequality
+}
+
+task extractCodeQualityPlugins(type: Copy) {
+    from { configurations.codequality.collect { zipTree(it) } }; into 'gradle/codequality'
+}
+
+dependencies {
+    codequality 'com.github.openhab.static-code-analysis:static-code-analysis:0.4.0-SNAPSHOT'
+    pmd 'com.github.openhab.static-code-analysis:org.openhab.tools.custom-checks.pmd:0.4.0-SNAPSHOT'
+    findbugs 'com.github.openhab.static-code-analysis:org.openhab.tools.custom-checks.findbugs:0.4.0-SNAPSHOT'
+    checkstyle 'com.github.openhab.static-code-analysis:org.openhab.tools.custom-checks.checkstyle:0.4.0-SNAPSHOT'
+}
+
+check { dependsOn extractCodeQualityPlugins}
+checkQualityMain { dependsOn extractCodeQualityPlugins}
+
+quality {
+    // Tools versions, as approved by Eclipse foundation
+    checkstyleVersion = '8.2'
+    pmdVersion = '5.8.1'
+    findbugsVersion = '3.0.1'
+    codenarcVersion = '1.0'
+    animalsnifferVersion = '0'
+
+    /**
+     * When disabled, quality plugins will not be registered automatically (according to sources).
+     * Only manually registered quality plugins will be configured.
+     */
+    boolean autoRegistration = true
+
+    // Enable/disable tools (when auto registration disabled control configuration appliance)
+    checkstyle = true
+    pmd = true
+    findbugs = true
+    codenarc = false
+    animalsniffer = false
+    
+    /**
+     * The analysis effort level. The value specified should be one of min, default, or max.
+     * Higher levels increase precision and find more bugs at the expense of running time and
+     * memory consumption. Default is 'max'.
+     */
+    findbugsEffort = 'max'
+    
+    /**
+     * The priority threshold for reporting bugs. If set to low, all bugs are reported.
+     * If set to medium, medium and high priority bugs are reported.
+     * If set to high, only high priority bugs are reported. Default is 'medium'.
+     */
+    findbugsLevel = 'medium'
+
+    /**
+     * Javac lint options to show compiler warnings, not visible by default.
+     * Applies to all CompileJava tasks.
+     * Options will be added as -Xlint:option
+     * Full list of options: http://docs.oracle.com/javase/8/docs/technotes/tools/windows/javac.html#BHCJCABJ
+     */
+    lintOptions = ['deprecation', 'unchecked']
+
+    /**
+     * Strict quality leads to build fail on any violation found. If disabled, all violation
+     * are just printed to console.
+     */
+    strict = true
+    
+    /**
+     * When false, disables quality tasks execution. Allows disabling tasks without removing plugins.
+     * Quality tasks are still registered, but skip execution, except when task called directly or through
+     * checkQualityMain (or other source set) grouping task.
+     */
+    boolean enabled = true
+    
+    /**
+     * When false, disables reporting quality issues to console. Only gradle general error messages will
+     * remain in logs. This may be useful in cases when project contains too many warnings.
+     * Also, console reporting require xml reports parsing, which could be time consuming in case of too
+     * many errors (large xml reports).
+     * True by default.
+     */
+    boolean consoleReporting = true
+
+    /**
+     * User configuration files directory. Files in this directory will be used instead of default (bundled) configs.
+     */
+    configDir = 'gradle/codequality/rulesets/'
+}

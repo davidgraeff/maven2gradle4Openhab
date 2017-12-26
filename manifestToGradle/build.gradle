@@ -1,0 +1,26 @@
+plugins {
+    id 'java-library'
+    id 'eclipse'
+    id 'application' // Apply the application plugin to add support for building an application
+    id 'org.inferred.processors' version '1.2.15' // Java annotation processors
+}
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    // Use jcenter for resolving your dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    jcenter()
+}
+
+dependencies {
+    implementation 'org.apache.maven:maven-model:3.5.2'
+    implementation 'info.picocli:picocli:2.0.3'
+    implementation 'com.google.code.gson:gson:2.8.2'
+    processor 'org.eclipse.jdt:org.eclipse.jdt.annotation:2.1.100'
+    
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'
+}
+
+// Define the main class for the application
+mainClassName = 'Main'

@@ -1,0 +1,10 @@
+apply plugin: 'groovy'
+
+configurations {
+    apiElements {
+        outgoing.variants.getByName('classes').artifact(
+            file: compileGroovy.destinationDir,
+            type: ArtifactTypeDefinition.JVM_CLASS_DIRECTORY,
+            builtBy: compileGroovy)
+    }
+}

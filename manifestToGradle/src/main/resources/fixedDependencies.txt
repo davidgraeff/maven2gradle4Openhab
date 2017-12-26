@@ -1,0 +1,6 @@
+implementation 'org.slf4j:slf4j-api:+'
+implementation 'org.osgi:org.osgi.service.component.annotations:1.3.0'
+processor 'org.eclipse.jdt:org.eclipse.jdt.annotation:2.1.100'
+testImplementation 'org.hamcrest:hamcrest-core:+'
+testImplementation 'org.mockito:mockito-core:+'
+testImplementation 'junit:junit:4.+'

@@ -1,0 +1,30 @@
+
+if () {
+    // Read allowed dependencies from file with gradle dependency formated lines like:
+    // org.osgi:org.osgi.service.component.annotations=1.3.0
+    def allowedDependencies = (new File('allowedDependencies.txt')).inject([:]) { map, line ->
+        def (name, reference) = line.split(/=/)
+        map[name] = reference
+        map
+    }
+    
+    configurations.all {
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.version == '+') {
+                def version = allowedDependencies.get(details.requested.group + ":" + details.requested.name, details.requested.version)
+                if (version != null) details.useVersion version
+            }
+        }
+    }
+}
+
+task printDependencies << {
+    def outString = ''
+
+    configurations.runtime.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+        def id = artifact.moduleVersion.id
+        outString += "${id.group}:${id.name}:${id.version}\n"
+    }
+    json = JsonOutput.prettyPrint(json)
+    println json
+}
